@@ -20,12 +20,27 @@ void SlamAlgorithm::process_observations(
     const Pose &odom_pose, const std::vector<Vector2d> &local_observations,
     double current_time) {
 
+  // TODO: The current implementation uses a very naive Nearest Neighbor (NN)
+  // approach. Think about the following edge cases:
+  // 1. What happens if two observations are closest to the SAME mapped
+  // landmark?
+  // 2. What happens to the global_obs when odom_pose has drifted by more than
+  // ASSOCIATION_THRESHOLD?
+  // 3. Is calculating the distance one-by-one the most robust way to match a
+  // constellation of cones?
+  //
+  // Feel free to rewrite this entire block to make it more robust, but don't
+  // change the function signature.
+
   for (const auto obs : local_observations) {
+    // We assume the car's odometry is perfectly true to project the
+    // observation. (Hint: Is this a safe assumption in racing?)
     Eigen::Vector2d global_obs = odom_pose.transform_to_map(obs);
 
     std::shared_ptr<Landmark> best_match = nullptr;
     double min_dist = ASSOCIATION_THRESHOLD;
 
+    // Naive nearest neighbour search
     for (const auto &lm : global_map_) {
       double dist = (lm->position - global_obs).norm();
       if (dist < min_dist) {
@@ -35,14 +50,14 @@ void SlamAlgorithm::process_observations(
     }
 
     if (best_match != nullptr) {
-      // update existing landmark
+      // Update existing landmark using a simple moving average
       best_match->position = 0.8 * best_match->position + 0.2 * global_obs;
       best_match->times_seen++;
       std::cout << "[Time: " << current_time
                 << "] Associated observation with cone ID: " << best_match->id
                 << std::endl;
     } else {
-      // create a new landmark
+      // Create a new landmark
       auto new_lm = std::make_shared<Landmark>();
       new_lm->id = next_landmark_id_++;
       new_lm->position = global_obs;
