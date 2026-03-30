@@ -6,7 +6,7 @@
 
 using namespace Eigen;
 
-const double ASSOCIATION_THRESHOLD = 3.0; // meters
+const double ASSOCIATION_THRESHOLD = 1.0; // meters
 
 // transform a point that's relative to the car to the world origin
 // DONT CHANGE
@@ -17,11 +17,11 @@ Vector2d Pose::transform_to_map(const Eigen::Vector2d &local_point) const {
 };
 
 void SlamAlgorithm::process_observations(
-    const Pose &pose, const std::vector<Vector2d> &local_observations,
+    const Pose &odom_pose, const std::vector<Vector2d> &local_observations,
     double current_time) {
 
   for (const auto obs : local_observations) {
-    Eigen::Vector2d global_obs = pose.transform_to_map(obs);
+    Eigen::Vector2d global_obs = odom_pose.transform_to_map(obs);
 
     std::shared_ptr<Landmark> best_match = nullptr;
     double min_dist = ASSOCIATION_THRESHOLD;
