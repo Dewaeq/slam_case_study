@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build and run SLAM sandbox",
+			"type": "shell",
+			"command": "bash run.sh",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
