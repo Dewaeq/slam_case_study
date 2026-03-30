@@ -6,8 +6,10 @@
 
 using namespace Eigen;
 
-const double ASSOCIATION_THRESHOLD = 1.0; // meters
+const double ASSOCIATION_THRESHOLD = 3.0; // meters
 
+// transform a point that's relative to the car to the world origin
+// DONT CHANGE
 Vector2d Pose::transform_to_map(const Eigen::Vector2d &local_point) const {
   Eigen::Matrix2d R;
   R << cos(theta), -sin(theta), sin(theta), cos(theta);
